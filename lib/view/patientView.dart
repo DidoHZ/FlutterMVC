@@ -38,7 +38,7 @@ class _PatientPageState extends State<PatientPage> {
           if (patientController.fetchState.value == FetchState.loding) {
             return const Center(child: CircularProgressIndicator());
           }
-          // When no data is provided
+          // Handling connection fail
           else if (patientController.fetchState.value == FetchState.failed) {
             return const NoConnection();
           }

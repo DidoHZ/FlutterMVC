@@ -30,7 +30,7 @@ class _PatientDetailState extends State<PatientDetail>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    print("rebuild");
+
     Size size = MediaQuery.of(context).size;
     return Card(
         child: ExpansionTile(
@@ -57,7 +57,7 @@ class _PatientDetailState extends State<PatientDetail>
         Padding(padding:EdgeInsets.only(right:size.width*.05,left:size.width*.05),child: const Divider()),
         Container(
           width: size.width,
-          padding: EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.only(bottom: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 	      crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,11 +79,13 @@ class _PatientDetailState extends State<PatientDetail>
                 ],
               ),
               // Meds at the Right of the Row
-              Column(
+              widget.patient.report == "" && widget.patient.meds.isEmpty
+              ? const SizedBox.shrink()
+              : Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.max,
-                children: [ 
+                children: [
                   SizedBox(
                       width: size.width*.4,
                       child: const Text("Meds",
