@@ -6,7 +6,7 @@ import 'package:get/get.dart';
 import '../repositorie/patientRepositorie.dart';
 
 class PatientController extends GetxController {
-  var fetchState = FetchState.init.obs;
+  var fetchState = FetchState.init;
   var patients = <Patient>[];
   var repo = PatientRepositorie();
 
@@ -16,13 +16,22 @@ class PatientController extends GetxController {
     super.onInit();
   }
 
+  void setState(FetchState _fetchState, {List<String> id = const ['body']}) {
+    fetchState = _fetchState;
+    update(id);
+  }
+
   void getPatients() async {
-    fetchState(FetchState.loding);
+    setState(FetchState.loding, id: ['body','add']);
     try {
       patients = await repo.getPatients();
-      fetchState(FetchState.succeed);
+      setState(FetchState.succeed, id: ['body','add']);
     } catch (err) {
-      fetchState(FetchState.failed);
+      setState(FetchState.failed, id: ['body','add']);
     }
   }
 }
+
+class AddPatientController extends GetxController {}
+
+class EditPatientController extends GetxController {}

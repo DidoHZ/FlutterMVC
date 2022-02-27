@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttermvc/constants/enums.dart';
-import 'package:fluttermvc/view/widget/noConnection.dart';
+import 'package:fluttermvc/view/widget/NoConnection.dart';
 import 'package:get/get.dart';
 import '../controller/patientController.dart';
-import 'widget/patientDetail.dart';
+import 'widget/AddPatientDialog.dart';
+import 'widget/PatientTable.dart';
 
 class PatientPage extends StatefulWidget {
   const PatientPage({
@@ -15,46 +16,66 @@ class PatientPage extends StatefulWidget {
 }
 
 class _PatientPageState extends State<PatientPage> {
-  // Get the Controller
+  // Get the Controllers
   final patientController = Get.put(PatientController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Text("Patients"), // Scaffold Title
-          actions: [
-            // Refresh Button (Reload data)
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: () {
-                patientController.getPatients();
-              },
-            )
-          ],
-        ),
-        body: Center(child: Obx(() {
+      appBar: AppBar(
+        title: const Text("Patients"), // Scaffold Title
+        // Scaffold Actions ( Add , Refresh)
+        actions: [
+          // Add Button Appaire when there is Connection
+          GetBuilder<PatientController>(
+              init: patientController,
+              id: 'add',
+              builder: (_) {
+                if (patientController.fetchState != FetchState.succeed) {
+                  return const SizedBox.shrink();
+                }
+
+                return IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: () {
+                      showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => const AddDialog());
+                    });
+              }),
+          // Refresh Button (Reload data)
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              patientController.getPatients();
+            },
+          )
+        ],
+      ),
+      body: Center(
+          child: GetBuilder<PatientController>(
+        init: patientController,
+        id: 'body',
+        builder: (_) {
           // When loding data from the server..
-          if (patientController.fetchState.value == FetchState.loding) {
-            return const Center(child: CircularProgressIndicator());
+          if (patientController.fetchState == FetchState.loding) {
+            return const CircularProgressIndicator();
           }
           // Handling connection fail
-          else if (patientController.fetchState.value == FetchState.failed) {
+          else if (patientController.fetchState == FetchState.failed) {
             return const NoConnection();
           }
           // When data fetched succussfully
-          else if (patientController.fetchState.value == FetchState.succeed) {
-            return ListView.builder(
-                itemCount: patientController.patients.length,
-                addAutomaticKeepAlives: true,
-                itemBuilder: (context, index) => PatientDetail(
-                      patient: patientController.patients[index],
-                    ));
+          else if (patientController.fetchState == FetchState.succeed) {
+            return const SingleChildScrollView(child: PatientTable());
           }
 
           // Handling Unexpected State
-          throw Exception("Unexpected State: " +
-              patientController.fetchState.value.toString());
-        })));
+          throw Exception(
+              "Unexpected State: " + patientController.fetchState.toString());
+        },
+      )),
+    );
   }
 }
